@@ -1,7 +1,8 @@
 FROM ubuntu:22.04
 
-RUN apt update -y && \
-    DEBIAN_FRONTEND=noninteractive apt install -y apache2 \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apache2 \
     php \
     npm \
     php-xml \
@@ -10,7 +11,7 @@ RUN apt update -y && \
     php-mysql \
     php-gd \
     unzip \
-    nano  \
+    nano \
     curl && \
     rm -rf /var/lib/apt/lists/*
 

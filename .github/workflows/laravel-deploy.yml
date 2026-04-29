@@ -15,13 +15,14 @@ jobs:
         continue-on-error: true
         run: docker rm -f mysql || true
       - name: Run MySQL container
-        run:  
-          docker run -d \
-          --name mysql \
-          -e MYSQL_ROOT_PASSWORD=password \
-          -e MYSQL_DATABASE=social_media \
-          -p 3307:3306 \
-          mysql:5.7
+        run: |
+  docker rm -f mysql || true
+  docker run -d \
+    --name mysql \
+    -e MYSQL_ROOT_PASSWORD=password \
+    -e MYSQL_DATABASE=social_media \
+    -p 3307:3306 \
+    mysql:5.7
       - name: List containers
         run: docker ps -a
   build-push-image:

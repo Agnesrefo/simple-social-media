@@ -15,14 +15,7 @@ jobs:
         continue-on-error: true
         run: docker rm -f $(docker ps -a | grep 'mysql\|social\|media' | awk '{print $1}')
       - name: Running mysql in container
-        run: |
-          docker rm -f mysql || true
-          docker run -d \
-          --name mysql \
-          -e MYSQL_ROOT_PASSWORD=password \
-          -e MYSQL_DATABASE=social_media \
-          -p 3307:3306 \
-          cmysql:5.7
+        run:  docker run -d --name mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=social_media -p 3306:3306 mysql:5.7
       - name: List docker container
         run: docker ps -a
   build-push-image:

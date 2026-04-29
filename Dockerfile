@@ -36,8 +36,6 @@ COPY install.sh /var/www/sosmed/install.sh
 WORKDIR /var/www/sosmed
 RUN chmod +x install.sh && bash -x ./install.sh
 
-RUN chmod +x install.sh && bash -x ./install.sh
-
 RUN chown -R www-data:www-data /var/www/sosmed && \
     chmod -R 755 /var/www/sosmed
 

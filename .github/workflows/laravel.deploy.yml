@@ -1,0 +1,83 @@
+name: Laravel application (Mysql)
+run-name: Build, Push and Deploy image simple social media
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: ${{ secrets.DOCKER_USER }}/agnes64-simple-social-media
+  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+
+jobs:
+  run-mysql-in-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Delete container mysql if exist
+        continue-on-error: true
+        run: |
+          docker rm -f mysql || true
+          docker rm -f $(docker ps -a | grep -E 'mysql|social|media' | awk '{print $1}') 2>/dev/null || true
+
+      - name: Running mysql in container
+        run: |
+          docker run -d \
+            --name mysql \
+            -e MYSQL_ROOT_PASSWORD=password \
+            -e MYSQL_DATABASE=social_media \
+            -p 3306:3306 \
+            mysql:5.7
+
+      - name: List docker container
+        run: docker ps -a
+
+  build-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Build Image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: List Image
+        run: docker image ls
+
+      - name: Push Image
+        run: docker push $IMAGE_NAME
+
+  deploy-social-media:
+    needs: build-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Stop and remove existing container
+        run: |
+          docker compose down --rmi all 2>/dev/null || true
+          docker rm -f $(docker ps -a -q) 2>/dev/null || true
+
+      - name: Start container
+        run: docker compose up -d
+
+      - name: List running containers
+        run: docker ps
